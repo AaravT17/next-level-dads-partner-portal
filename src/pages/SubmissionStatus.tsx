@@ -6,13 +6,20 @@ export default function SubmissionStatus() {
         {id: 2, name: "Community resource guide", status: "awaiting_review"},
     ]);
 
+    const [activeFilter, setActiveFilter] = useState("all");
+
+    const filteredSubmissions =
+        activeFilter === "all"
+            ? submissions
+            : submissions.filter((item) => item.status === activeFilter);
+
     return (
         <div>
             <p>Your Submissions</p>
             <h1>Submission Status</h1>
 
             <ul>
-                {submissions.map((item) => (
+                {filteredSubmissions.map((item) => (
                     <li key={item.id}>
                         {item.name} - {item.status}
                     </li>
