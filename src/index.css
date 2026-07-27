@@ -5,7 +5,7 @@
 All colors MUST be HSL.
 */
 
-@layer base {
+@media (prefers-color-scheme: dark) {
   :root {
     /* Next Level Dads Design System - Warm, Modern, Cozy */
     
