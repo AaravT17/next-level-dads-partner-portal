@@ -5,6 +5,7 @@ import Sidebar from './components/Sidebar'
 import Overview from './pages/Overview'
 import Communities from './pages/Communities'
 import Events from './pages/Events'
+import Submissions from './pages/SubmissionStatus'
 import { useState } from 'react'
 
 function App() {
@@ -24,6 +25,8 @@ function App() {
             <Route path='communities' element={<Communities />} />
 
             <Route path='events' element={<Events />} />
+
+            <Route path='submissions' element={<Submissions />} />
           </Routes>
 
         </div>
