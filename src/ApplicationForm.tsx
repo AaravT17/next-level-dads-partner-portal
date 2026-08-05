@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 
 const inputClass =
   'mt-1 w-full rounded-lg border border-neutral-300 px-3 py-2 text-neutral-900 focus:border-[#c9932e] focus:outline-none focus:ring-1 focus:ring-[#c9932e]'
@@ -40,13 +40,20 @@ const initialFormData: FormData = {
 
 type Props = {
   accessToken: string
+  onSubmitted: () => void
 }
 
-function ApplicationForm({ accessToken }: Props) {
+function ApplicationForm({ accessToken, onSubmitted }: Props) {
   const [formData, setFormData] = useState<FormData>(initialFormData)
   const [error, setError] = useState<string | null>(null)
   const [submitted, setSubmitted] = useState(false)
   const [loading, setLoading] = useState(false)
+
+  useEffect(() => {
+    if (!submitted) return
+    const timer = setTimeout(onSubmitted, 2000)
+    return () => clearTimeout(timer)
+  }, [submitted, onSubmitted])
 
   function handleChange(e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) {
     const { name, value } = e.target
@@ -131,13 +138,13 @@ function ApplicationForm({ accessToken }: Props) {
             </div>
 
             <div>
-              <label className={labelClass}>Email</label>
+              <label className={labelClass}>Organization email</label>
               <input type="email" name="email" value={formData.email} onChange={handleChange} className={inputClass} required />
             </div>
 
             <div className="grid grid-cols-1 gap-5 sm:grid-cols-2">
               <div>
-                <label className={labelClass}>Phone (optional)</label>
+                <label className={labelClass}>Organization phone (optional)</label>
                 <input type="tel" name="phone" value={formData.phone} onChange={handleChange} className={inputClass} />
               </div>
               <div>
@@ -180,22 +187,22 @@ function ApplicationForm({ accessToken }: Props) {
             <hr className="border-neutral-200" />
 
             <div>
-              <label className={labelClass}>Your name (main contact)</label>
+              <label className={labelClass}>Contact name</label>
               <input type="text" name="contactName" value={formData.contactName} onChange={handleChange} className={inputClass} required />
             </div>
 
             <div>
-              <label className={labelClass}>Your title (optional)</label>
+              <label className={labelClass}>Contact title (optional)</label>
               <input type="text" name="contactTitle" value={formData.contactTitle} onChange={handleChange} className={inputClass} />
             </div>
 
             <div className="grid grid-cols-1 gap-5 sm:grid-cols-2">
               <div>
-                <label className={labelClass}>Your email</label>
+                <label className={labelClass}>Contact email</label>
                 <input type="email" name="contactEmail" value={formData.contactEmail} onChange={handleChange} className={inputClass} required />
               </div>
               <div>
-                <label className={labelClass}>Your phone (optional)</label>
+                <label className={labelClass}>Contact phone (optional)</label>
                 <input type="tel" name="contactPhone" value={formData.contactPhone} onChange={handleChange} className={inputClass} />
               </div>
             </div>
