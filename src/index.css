@@ -75,20 +75,20 @@ All colors MUST be HSL.
   } */
   
   h1, h2, h3, h4, h5, h6 {
-    font-family: 'Poppins', system-ui, -apple-system, sans-serif;
+    font-family: "Inter", sans-serif;
     font-weight: 600;
   }
 
   .toolbar {
-    background-color: hsl(35 37% 95%);
+    background-color: oklab(0.989998 0.000426233 0.00500375 / 0.8);
   }
 
   .sidebar {
-    background-color: hsl(35 37% 90%);
+    background-color: hsl(35 37% 95%);
   }
 
   .main-content {
-    background-color: hsl(35 37% 92%);
+    background-color: hsl(35 37% 95%);
   }
 
   .sidebar-link {
@@ -110,6 +110,58 @@ All colors MUST be HSL.
     border-top-left-radius: 0;
     border-bottom-left-radius: 0;
     border-left: 2px solid hsl(40 60% 57%);
+  }
+
+  .event-form {
+    background-color: lab(98.8605% .13572 1.90164);;
+    border: 1px solid oklab(0.879998 0.00207496 0.0118377 / 0.7);
+    border-radius: 1rem;
+    box-shadow: 0 4px 16px -4px hsl(30 30% 25% / 0.15);
+  }
+
+  .event-form input, .event-form textarea {
+    /* background-color: hsl(35 20% 85%); */
+    border: 1px solid hsl(35 20% 80%);
+    border-radius: 12px;
+    padding: 4px 8px;
+    box-shadow: 0 4px 16px -4px hsl(30 30% 25% / 0.15);
+  }
+
+  .event-form input:focus, .event-form textarea:focus{
+    outline-color: hsl(40 60% 57%);
+  }
+
+  .event-form label {
+    font-size: var(--text-base) /* 16px */;
+    line-height: var(--tw-leading, var(--text-base--line-height) /* calc(1.5 / 1) ≈ 1.5 */);
+  }
+
+  .submit-btn {
+    background-color: hsl(30 30% 25%) !important;
+    color: white;
+    border: 1px solid black !important;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1)
+  }
+
+  .submit-btn:hover {
+    cursor: pointer;
+    background-color: hsl(30 30% 35%) !important;
+  }
+
+  .error-msg {
+    color:hsl( 0 65% 55%);
+  }
+
+  .error-msg::before {
+    content: '*';
+  }
+
+  .required-label::before {
+    content: "*";
+  }
+
+  .page-header-gold {
+    color: hsl(40 60% 57%);
   }
 
 }
