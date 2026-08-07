@@ -13,7 +13,7 @@ type Application = {
   status: 'pending' | 'approved' | 'rejected'
 }
 
-function Dashboard({ restricted = false }: { restricted?: boolean }) {
+function Dashboard({ restricted = false, onLogout }: { restricted?: boolean; onLogout: () => void }) {
   const [showSidebar, setShowSidebar] = useState<boolean>(false)
 
   return (
@@ -22,7 +22,7 @@ function Dashboard({ restricted = false }: { restricted?: boolean }) {
         <Sidebar showSidebar={showSidebar} setShowSidebar={setShowSidebar} restricted={restricted} />
 
         <div className="main-content flex-1">
-          <Toolbar showSidebar={showSidebar} setShowSidebar={setShowSidebar} />
+          <Toolbar showSidebar={showSidebar} setShowSidebar={setShowSidebar} onLogout={onLogout} />
 
           <Routes>
             {restricted ? (
@@ -60,6 +60,19 @@ function App() {
     }
   }
 
+  async function handleLogout() {
+    try {
+      await fetch(`${import.meta.env.VITE_BACKEND_BASE_URL}/api/auth/logout`, {
+        method: 'POST',
+        credentials: 'include',
+      })
+    } catch {
+      // ignore — still clear local state below regardless
+    }
+    setAccessToken(null)
+    setApplication(null)
+  }
+
   if (!accessToken) {
     return <AuthScreen onAuthenticated={handleAuthenticated} />
   }
@@ -74,11 +87,11 @@ function App() {
 
   if (application) {
     if (application.status === 'approved') {
-      return <Dashboard />
+      return <Dashboard onLogout={handleLogout} />
     }
 
     if (application.status === 'pending') {
-      return <Dashboard restricted />
+      return <Dashboard restricted onLogout={handleLogout} />
     }
 
     return (
@@ -87,6 +100,9 @@ function App() {
           <div className="rounded-2xl border border-neutral-200 bg-white p-8 shadow-sm sm:p-10">
             <p className="text-xs font-semibold uppercase tracking-wide text-[#c9932e]">Application Status</p>
             <h1 className="mt-2 text-3xl font-bold text-neutral-900">Your application was not approved</h1>
+            <button onClick={handleLogout} className="mt-4 text-sm text-neutral-600 underline">
+              Log out
+            </button>
           </div>
         </div>
       </div>

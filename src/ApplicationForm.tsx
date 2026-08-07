@@ -3,11 +3,105 @@ import { useEffect, useState } from 'react'
 const inputClass =
   'mt-1 w-full rounded-lg border border-neutral-300 px-3 py-2 text-neutral-900 focus:border-[#c9932e] focus:outline-none focus:ring-1 focus:ring-[#c9932e]'
 const labelClass = 'block text-sm font-medium text-neutral-700'
+const phoneSelectClass =
+  'rounded-lg border border-neutral-300 px-2 py-2 text-neutral-900 focus:border-[#c9932e] focus:outline-none focus:ring-1 focus:ring-[#c9932e]'
+const phoneNumberClass =
+  'flex-1 min-w-0 rounded-lg border border-neutral-300 px-3 py-2 text-neutral-900 focus:border-[#c9932e] focus:outline-none focus:ring-1 focus:ring-[#c9932e]'
+
+// Not an exhaustive list of every country code — covers common regions.
+// A proper long-term fix would use a phone-number library (e.g. libphonenumber-js).
+const countryCodes = [
+  { code: '+1', label: 'US/Canada (+1)' },
+  { code: '+52', label: 'Mexico (+52)' },
+  { code: '+44', label: 'UK (+44)' },
+  { code: '+33', label: 'France (+33)' },
+  { code: '+49', label: 'Germany (+49)' },
+  { code: '+34', label: 'Spain (+34)' },
+  { code: '+39', label: 'Italy (+39)' },
+  { code: '+31', label: 'Netherlands (+31)' },
+  { code: '+46', label: 'Sweden (+46)' },
+  { code: '+47', label: 'Norway (+47)' },
+  { code: '+45', label: 'Denmark (+45)' },
+  { code: '+41', label: 'Switzerland (+41)' },
+  { code: '+43', label: 'Austria (+43)' },
+  { code: '+351', label: 'Portugal (+351)' },
+  { code: '+30', label: 'Greece (+30)' },
+  { code: '+353', label: 'Ireland (+353)' },
+  { code: '+91', label: 'India (+91)' },
+  { code: '+86', label: 'China (+86)' },
+  { code: '+81', label: 'Japan (+81)' },
+  { code: '+82', label: 'South Korea (+82)' },
+  { code: '+65', label: 'Singapore (+65)' },
+  { code: '+60', label: 'Malaysia (+60)' },
+  { code: '+66', label: 'Thailand (+66)' },
+  { code: '+63', label: 'Philippines (+63)' },
+  { code: '+84', label: 'Vietnam (+84)' },
+  { code: '+61', label: 'Australia (+61)' },
+  { code: '+64', label: 'New Zealand (+64)' },
+  { code: '+27', label: 'South Africa (+27)' },
+  { code: '+234', label: 'Nigeria (+234)' },
+  { code: '+254', label: 'Kenya (+254)' },
+  { code: '+20', label: 'Egypt (+20)' },
+  { code: '+971', label: 'UAE (+971)' },
+  { code: '+966', label: 'Saudi Arabia (+966)' },
+  { code: '+55', label: 'Brazil (+55)' },
+  { code: '+54', label: 'Argentina (+54)' },
+  { code: '+56', label: 'Chile (+56)' },
+  { code: '+57', label: 'Colombia (+57)' },
+  { code: '+51', label: 'Peru (+51)' },
+]
+
+type PhoneFieldProps = {
+  label: string
+  countryCodeName: string
+  countryCodeValue: string
+  numberName: string
+  numberValue: string
+  onChange: (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => void
+  required?: boolean
+}
+
+function PhoneField({
+  label,
+  countryCodeName,
+  countryCodeValue,
+  numberName,
+  numberValue,
+  onChange,
+  required,
+}: PhoneFieldProps) {
+  return (
+    <div>
+      <label className={labelClass}>{label}</label>
+      <div className="mt-1 flex gap-2">
+        <select name={countryCodeName} value={countryCodeValue} onChange={onChange} className={phoneSelectClass}>
+          {countryCodes.map((c) => (
+            <option key={c.code} value={c.code}>
+              {c.label}
+            </option>
+          ))}
+        </select>
+        <input
+          type="tel"
+          name={numberName}
+          inputMode="numeric"
+          pattern="[0-9]{4,14}"
+          title="Enter 4 to 14 digits, numbers only"
+          value={numberValue}
+          onChange={onChange}
+          className={phoneNumberClass}
+          required={required}
+        />
+      </div>
+    </div>
+  )
+}
 
 type FormData = {
   name: string
   email: string
-  phone: string
+  phoneCountryCode: string
+  phoneNumber: string
   city: string
   province: string
   website: string
@@ -15,16 +109,18 @@ type FormData = {
   contactName: string
   contactTitle: string
   contactEmail: string
-  contactPhone: string
+  contactPhoneCountryCode: string
+  contactPhoneNumber: string
   primaryGoals: string
   partnershipReason: string
-  estimatedReach: string
+  targetAudience: string
 }
 
 const initialFormData: FormData = {
   name: '',
   email: '',
-  phone: '',
+  phoneCountryCode: '+1',
+  phoneNumber: '',
   city: '',
   province: '',
   website: '',
@@ -32,10 +128,11 @@ const initialFormData: FormData = {
   contactName: '',
   contactTitle: '',
   contactEmail: '',
-  contactPhone: '',
+  contactPhoneCountryCode: '+1',
+  contactPhoneNumber: '',
   primaryGoals: '',
   partnershipReason: '',
-  estimatedReach: '',
+  targetAudience: '',
 }
 
 type Props = {
@@ -68,7 +165,7 @@ function ApplicationForm({ accessToken, onSubmitted }: Props) {
     const payload = {
       name: formData.name,
       email: formData.email,
-      phone: formData.phone,
+      phone: formData.phoneNumber ? `${formData.phoneCountryCode} ${formData.phoneNumber}` : '',
       city: formData.city,
       province: formData.province,
       website: formData.website,
@@ -76,11 +173,13 @@ function ApplicationForm({ accessToken, onSubmitted }: Props) {
       contact_name: formData.contactName,
       contact_title: formData.contactTitle,
       contact_email: formData.contactEmail,
-      contact_phone: formData.contactPhone,
+      contact_phone: formData.contactPhoneNumber
+        ? `${formData.contactPhoneCountryCode} ${formData.contactPhoneNumber}`
+        : '',
       application_answers: {
         primary_goals: formData.primaryGoals,
         partnership_reason: formData.partnershipReason,
-        estimated_reach: formData.estimatedReach,
+        target_audience: formData.targetAudience,
       },
     }
 
@@ -143,10 +242,14 @@ function ApplicationForm({ accessToken, onSubmitted }: Props) {
             </div>
 
             <div className="grid grid-cols-1 gap-5 sm:grid-cols-2">
-              <div>
-                <label className={labelClass}>Organization phone (optional)</label>
-                <input type="tel" name="phone" value={formData.phone} onChange={handleChange} className={inputClass} />
-              </div>
+              <PhoneField
+                label="Organization phone (optional)"
+                countryCodeName="phoneCountryCode"
+                countryCodeValue={formData.phoneCountryCode}
+                numberName="phoneNumber"
+                numberValue={formData.phoneNumber}
+                onChange={handleChange}
+              />
               <div>
                 <label className={labelClass}>Website (optional)</label>
                 <input type="url" name="website" value={formData.website} onChange={handleChange} className={inputClass} />
@@ -201,10 +304,14 @@ function ApplicationForm({ accessToken, onSubmitted }: Props) {
                 <label className={labelClass}>Contact email</label>
                 <input type="email" name="contactEmail" value={formData.contactEmail} onChange={handleChange} className={inputClass} required />
               </div>
-              <div>
-                <label className={labelClass}>Contact phone (optional)</label>
-                <input type="tel" name="contactPhone" value={formData.contactPhone} onChange={handleChange} className={inputClass} />
-              </div>
+              <PhoneField
+                label="Contact phone (optional)"
+                countryCodeName="contactPhoneCountryCode"
+                countryCodeValue={formData.contactPhoneCountryCode}
+                numberName="contactPhoneNumber"
+                numberValue={formData.contactPhoneNumber}
+                onChange={handleChange}
+              />
             </div>
 
             <hr className="border-neutral-200" />
@@ -220,8 +327,8 @@ function ApplicationForm({ accessToken, onSubmitted }: Props) {
             </div>
 
             <div>
-              <label className={labelClass}>Estimated reach (optional)</label>
-              <input type="text" name="estimatedReach" value={formData.estimatedReach} onChange={handleChange} className={inputClass} />
+              <label className={labelClass}>Target audience (optional)</label>
+              <input type="text" name="targetAudience" value={formData.targetAudience} onChange={handleChange} className={inputClass} />
             </div>
 
             {error && <p className="text-sm text-red-600">{error}</p>}

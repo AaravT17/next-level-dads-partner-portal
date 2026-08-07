@@ -1,9 +1,10 @@
 interface StatusProp {
     showSidebar: boolean;
     setShowSidebar: (status: boolean) => void;
+    onLogout: () => void;
 }
 
-function Toolbar({showSidebar, setShowSidebar}: StatusProp) {
+function Toolbar({showSidebar, setShowSidebar, onLogout}: StatusProp) {
 
     return (
         <div className="toolbar flex justify-between items-center py-3 px-5 border-b border-b-black/15 md:justify-start md:gap-4">
@@ -28,6 +29,10 @@ function Toolbar({showSidebar, setShowSidebar}: StatusProp) {
                 >
 
                 </div>
+
+                <button onClick={onLogout} className="text-sm text-neutral-600 hover:underline">
+                    Log out
+                </button>
             </div>
         </div>
     )
