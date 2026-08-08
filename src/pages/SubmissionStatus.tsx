@@ -14,10 +14,18 @@ const EMPTY_MESSAGES = {
     rejected: "You have no rejected submissions."
 };
 
-export default function SubmissionStatus() {
-    const [submissions, setSubmissions] = useState([]);
-        
+type Submission = {
+    id: string;
+    name: string;
+    type: string;
+    app_status: string;
+    created_at: string;
+    openMessage?: boolean;
+};
 
+export default function SubmissionStatus() {
+    const [submissions, setSubmissions] = useState<Submission[]>([]);
+        
     const [isLoading, setIsLoading] = useState(true);
     const [hasError, setHasError] = useState(false);
 
@@ -80,9 +88,9 @@ export default function SubmissionStatus() {
 
     if (hasError) {
         return (
-            <div>
-                <p className="text-sm text-red-600 p-8">Something went wrong loading your submissions.</p>
-                <button onClick={() => loadSubmissions()} className="text-xs border rounded-full px-3 py-1">Refresh Submissions</button>
+            <div className="max-w-md mx-auto p-8 text-center">
+                <p className="text-sm text-red-600 mb-3">Something went wrong loading your submissions.</p>
+                <button onClick={() => loadSubmissions()} className="text-sm border rounded-full px-4 py-2 hover:bg-gray-50">Refresh Submissions</button>
             </div>
         );
     }
@@ -110,13 +118,18 @@ export default function SubmissionStatus() {
                         ? {title: "Update", dotColor: "bg-amber-500"}
                         : STATUS_LABELS.find((l) => l.key === item.app_status);
 
+                        const formattedDate = new Date(item.created_at).toLocaleDateString("en-CA", {
+                            month: "short",
+                            day: "numeric"
+                        });
+
                         return (
                             <div key={item.id} className="flex justify-between items-center px-4 py-3">
                                 <div>
                                     <span className="text-sm">{item.name}</span>
                                     <div className="flex items-center gap-2 mt-1">
                                         <span className="text-[10px] uppercase border rounded px-1.5 py-0.5 text-muted-foreground">{item.type}</span>
-                                        <span className="text-xs text-muted-foreground">submitted {item.created_at}</span>
+                                        <span className="text-xs text-muted-foreground">submitted {formattedDate}</span>
                                     </div>
                                 </div>
                                 <div className="flex flex-col items-end gap-1">
