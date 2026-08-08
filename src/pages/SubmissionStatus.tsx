@@ -15,36 +15,37 @@ const EMPTY_MESSAGES = {
 };
 
 export default function SubmissionStatus() {
-    const [submissions] = useState([
-        {id: 1, name: "Fall Festival meetup", status: "approved", type: "event", submittedDate: "Jul 26", openMessage: false},
-        {id: 2, name: "Community resource guide", status: "pending", type: "resource", submittedDate: "Oct 02", openMessage: false},
-        {id: 3, name: "Robin Hood festival", status: "pending", type: "event", submittedDate: "May 18", openMessage: true},
-        {id: 4, name: "Hood to Coast race guide", status: "rejected", type: "resource", submittedDate: "Feb 09", openMessage: false},
-    ]);
+    const [submissions, setSubmissions] = useState([]);
+        
 
     const [isLoading, setIsLoading] = useState(true);
     const [hasError, setHasError] = useState(false);
 
-    useEffect(() => {
-        async function loadSubmissions() {
-            setIsLoading(true);
-            setHasError(false);
-            try {
-                //endpoint
-                setIsLoading(false);
-            } catch (err) {
-                setHasError(true);
-                setIsLoading(false);
+    async function loadSubmissions() {
+        setIsLoading(true);
+        setHasError(false); 
+        try {
+            const response = await fetch("/api/organizations-events/me");
+            if (!response.ok) {
+                throw new Error("Failed to fetch");
             }
+            const data = await response.json();
+            setSubmissions(data);
+            setIsLoading(false);
+        } catch (err) {
+            setHasError(true);
+            setIsLoading(false);
         }
+    }
 
+    useEffect(() => {
         loadSubmissions();
     }, []);
 
-    const approvedCount = submissions.filter((item) => item.status === "approved").length;
-    const pendingCount = submissions.filter((item) => item.status === "pending" && item.openMessage === false).length;
-    const needsInfoCount = submissions.filter((item) => item.status === "pending" && item.openMessage === true).length;
-    const rejectedCount = submissions.filter((item) => item.status === "rejected").length;
+    const approvedCount = submissions.filter((item) => item.app_status === "approved").length;
+    const pendingCount = submissions.filter((item) => item.app_status === "pending" && item.openMessage === false).length;
+    const needsInfoCount = submissions.filter((item) => item.app_status === "pending" && item.openMessage === true).length;
+    const rejectedCount = submissions.filter((item) => item.app_status === "rejected").length;
     const allCount = approvedCount + pendingCount + needsInfoCount + rejectedCount;
 
     const [activeFilter, setActiveFilter] = useState<"all" | "approved" | "pending" | "needs_info" | "rejected">("all");
@@ -63,14 +64,14 @@ export default function SubmissionStatus() {
     filteredSubmissions = submissions;
     } else if (activeFilter === "pending") {
     filteredSubmissions = submissions.filter(
-        (item) => item.status === "pending" && item.openMessage === false
+        (item) => item.app_status === "pending" && item.openMessage === false
     );
     } else if (activeFilter === "needs_info") {
     filteredSubmissions = submissions.filter(
-        (item) => item.status === "pending" && item.openMessage === true
+        (item) => item.app_status === "pending" && item.openMessage === true
     );
     } else {
-    filteredSubmissions = submissions.filter((item) => item.status === activeFilter);
+    filteredSubmissions = submissions.filter((item) => item.app_status === activeFilter);
     }
 
     if (isLoading) {
@@ -78,7 +79,12 @@ export default function SubmissionStatus() {
     }
 
     if (hasError) {
-        return <p className="text-sm text-red-600 p-8">Something went wrong loading your submissions.</p>;
+        return (
+            <div>
+                <p className="text-sm text-red-600 p-8">Something went wrong loading your submissions.</p>
+                <button onClick={() => loadSubmissions()} className="text-xs border rounded-full px-3 py-1">Refresh Submissions</button>
+            </div>
+        );
     }
 
     return (
@@ -100,9 +106,9 @@ export default function SubmissionStatus() {
                     ? (<p className="text-sm px-4 py-3">{EMPTY_MESSAGES[activeFilter]}</p>
                     ) : (
                     filteredSubmissions.map((item) => {
-                        const label = item.status === "pending" && item.openMessage === true
+                        const label = item.app_status === "pending" && item.openMessage === true
                         ? {title: "Update", dotColor: "bg-amber-500"}
-                        : STATUS_LABELS.find((l) => l.key === item.status);
+                        : STATUS_LABELS.find((l) => l.key === item.app_status);
 
                         return (
                             <div key={item.id} className="flex justify-between items-center px-4 py-3">
@@ -110,12 +116,12 @@ export default function SubmissionStatus() {
                                     <span className="text-sm">{item.name}</span>
                                     <div className="flex items-center gap-2 mt-1">
                                         <span className="text-[10px] uppercase border rounded px-1.5 py-0.5 text-muted-foreground">{item.type}</span>
-                                        <span className="text-xs text-muted-foreground">submitted {item.submittedDate}</span>
+                                        <span className="text-xs text-muted-foreground">submitted {item.created_at}</span>
                                     </div>
                                 </div>
                                 <div className="flex flex-col items-end gap-1">
                                     <span className="text-sm text-muted-foreground">{label ? label.title : "status not found"}</span>
-                                    {item.status === "pending" && item.openMessage === true && (
+                                    {item.app_status === "pending" && item.openMessage === true && (
                                         <button onClick={() => console.log("TODO: open messaging thread for submission", item.id)} className="text-xs border rounded-full px-3 py-1">Open and Respond</button>
                                     )}
                                 </div>
