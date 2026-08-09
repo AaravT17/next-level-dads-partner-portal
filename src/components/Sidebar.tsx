@@ -9,9 +9,9 @@ interface StatusProp {
 function Sidebar({showSidebar, setShowSidebar, restricted}: StatusProp) {
     return (
         <>
-            <div 
-                onClick={() => setShowSidebar(!showSidebar)} 
-                className={`fixed inset-0 z-10 bg-black/80 transition-opacity duration-200 ${showSidebar ? 'opacity-100' : 'opacity-0'}`}
+            <div
+                onClick={() => setShowSidebar(!showSidebar)}
+                className={`fixed inset-0 z-10 bg-black/80 transition-opacity duration-200 ${showSidebar ? 'opacity-100 pointer-events-auto' : 'opacity-0 pointer-events-none'}`}
                 >
             </div>
             <aside 

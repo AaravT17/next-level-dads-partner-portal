@@ -4,6 +4,18 @@ const inputClass =
   'mt-1 w-full rounded-lg border border-neutral-300 px-3 py-2 text-neutral-900 focus:border-[#c9932e] focus:outline-none focus:ring-1 focus:ring-[#c9932e]'
 const labelClass = 'block text-sm font-medium text-neutral-700'
 
+// Mirrors the backend's validate_password_strength exactly (app/utils/auth.py)
+const passwordRequirements = [
+  { label: 'At least 8 characters', test: (pwd: string) => pwd.length >= 8 },
+  { label: 'One uppercase letter', test: (pwd: string) => /[A-Z]/.test(pwd) },
+  { label: 'One lowercase letter', test: (pwd: string) => /[a-z]/.test(pwd) },
+  { label: 'One number', test: (pwd: string) => /[0-9]/.test(pwd) },
+  {
+    label: 'One special character (e.g. ! @ # $ %)',
+    test: (pwd: string) => /[-#!$@£%^&*()_+|~=`{}[\]:";'<>?,./\\]/.test(pwd),
+  },
+]
+
 type Props = {
   onAuthenticated: (accessToken: string) => void
 }
@@ -85,6 +97,18 @@ function AuthScreen({ onAuthenticated }: Props) {
                 className={inputClass}
                 required
               />
+              {mode === 'signup' && (
+                <ul className="mt-2 space-y-1 text-xs">
+                  {passwordRequirements.map((req) => {
+                    const met = req.test(password)
+                    return (
+                      <li key={req.label} className={met ? 'text-green-600' : 'text-neutral-500'}>
+                        {met ? '✓' : '○'} {req.label}
+                      </li>
+                    )
+                  })}
+                </ul>
+              )}
             </div>
 
             {error && <p className="text-sm text-red-600">{error}</p>}

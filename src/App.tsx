@@ -13,7 +13,15 @@ type Application = {
   status: 'pending' | 'approved' | 'rejected'
 }
 
-function Dashboard({ restricted = false, onLogout }: { restricted?: boolean; onLogout: () => void }) {
+function Dashboard({
+  restricted = false,
+  onLogout,
+  accessToken,
+}: {
+  restricted?: boolean
+  onLogout: () => void
+  accessToken: string
+}) {
   const [showSidebar, setShowSidebar] = useState<boolean>(false)
 
   return (
@@ -26,13 +34,13 @@ function Dashboard({ restricted = false, onLogout }: { restricted?: boolean; onL
 
           <Routes>
             {restricted ? (
-              <Route index element={<Messaging />} />
+              <Route index element={<Messaging accessToken={accessToken} />} />
             ) : (
               <>
                 <Route index element={<Overview />} />
                 <Route path="communities" element={<Communities />} />
                 <Route path="events" element={<Events />} />
-                <Route path="messaging" element={<Messaging />} />
+                <Route path="messaging" element={<Messaging accessToken={accessToken} />} />
               </>
             )}
           </Routes>
@@ -65,6 +73,7 @@ function App() {
       await fetch(`${import.meta.env.VITE_BACKEND_BASE_URL}/api/auth/logout`, {
         method: 'POST',
         credentials: 'include',
+        headers: { Authorization: `Bearer ${accessToken}` },
       })
     } catch {
       // ignore — still clear local state below regardless
@@ -87,11 +96,11 @@ function App() {
 
   if (application) {
     if (application.status === 'approved') {
-      return <Dashboard onLogout={handleLogout} />
+      return <Dashboard onLogout={handleLogout} accessToken={accessToken} />
     }
 
     if (application.status === 'pending') {
-      return <Dashboard restricted onLogout={handleLogout} />
+      return <Dashboard restricted onLogout={handleLogout} accessToken={accessToken} />
     }
 
     return (
