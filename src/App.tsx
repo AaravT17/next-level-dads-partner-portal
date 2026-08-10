@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { BrowserRouter, Routes, Route } from 'react-router'
 import AuthScreen from './AuthScreen'
 import ApplicationForm from './ApplicationForm'
@@ -54,6 +54,7 @@ function App() {
   const [accessToken, setAccessToken] = useState<string | null>(null)
   const [application, setApplication] = useState<Application | null>(null)
   const [checkingApplication, setCheckingApplication] = useState(false)
+  const [checkingSession, setCheckingSession] = useState(true)
 
   async function handleAuthenticated(token: string) {
     setAccessToken(token)
@@ -68,6 +69,28 @@ function App() {
     }
   }
 
+  useEffect(() => {
+    async function restoreSession() {
+      try {
+        const res = await fetch(`${import.meta.env.VITE_BACKEND_BASE_URL}/api/auth/refresh`, {
+          method: 'POST',
+          credentials: 'include',
+        })
+        if (res.ok) {
+          const data = await res.json()
+          await handleAuthenticated(data.access_token)
+        }
+      } catch {
+        // no valid session to restore — fall through to the login screen
+      } finally {
+        setCheckingSession(false)
+      }
+    }
+    restoreSession()
+    // Runs once on mount only — intentionally not re-run on every render.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
+
   async function handleLogout() {
     try {
       await fetch(`${import.meta.env.VITE_BACKEND_BASE_URL}/api/auth/logout`, {
@@ -80,6 +103,14 @@ function App() {
     }
     setAccessToken(null)
     setApplication(null)
+  }
+
+  if (checkingSession) {
+    return (
+      <div className="flex min-h-screen items-center justify-center bg-[#faf7f2]">
+        <p className="text-neutral-600">Loading...</p>
+      </div>
+    )
   }
 
   if (!accessToken) {
