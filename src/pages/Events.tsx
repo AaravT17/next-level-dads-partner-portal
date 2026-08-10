@@ -1,5 +1,7 @@
 import { useForm, Controller, type SubmitHandler } from "react-hook-form";
 import PhoneInput, {isPossiblePhoneNumber} from "react-phone-number-input/input";
+import { useState } from "react";
+import {createEvent} from "../api/axios";
 
 type EventForm = {
     name: string;
@@ -16,6 +18,9 @@ type EventForm = {
 }
 
 function Events() {
+    const [response, setResponse] = useState<string | null>(null);
+
+    const endpoint = '/api/events/event-application';
 
     const {
         register,
@@ -54,6 +59,15 @@ function Events() {
         }
 
         console.log(payload);
+
+        try {
+            const result = await createEvent(endpoint, payload);
+
+            console.log('Created event: ', result.id)
+        }
+        catch (err) {
+            console.error('Error submitting form data:', err);
+        }
     }
 
 
