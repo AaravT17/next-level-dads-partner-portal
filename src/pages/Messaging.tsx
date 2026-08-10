@@ -2,13 +2,18 @@ import { useEffect, useState } from 'react'
 
 type Message = {
   id: string
+  chat_id: string
   sender_id: string | null
+  sender_name: string | null
   content: string
+  is_deleted: boolean
   created_at: string
 }
 
 type Chat = {
   id: string
+  organization_id: string
+  organization_name: string
 }
 
 type Props = {
@@ -19,7 +24,6 @@ function Messaging({ accessToken }: Props) {
   const [chat, setChat] = useState<Chat | null>(null)
   const [messages, setMessages] = useState<Message[]>([])
   const [loading, setLoading] = useState(true)
-  const [composing, setComposing] = useState(false)
   const [newMessage, setNewMessage] = useState('')
   const [sending, setSending] = useState(false)
   const [error, setError] = useState<string | null>(null)
@@ -54,7 +58,9 @@ function Messaging({ accessToken }: Props) {
         { headers: { Authorization: `Bearer ${accessToken}` } },
       )
       if (messagesRes.ok) {
-        setMessages(await messagesRes.json())
+        // Backend returns newest-first (for pagination) — reverse for a top-to-bottom chat view.
+        const data: Message[] = await messagesRes.json()
+        setMessages(data.reverse())
       }
     } catch {
       setError('Failed to load messages.')
@@ -64,28 +70,12 @@ function Messaging({ accessToken }: Props) {
   }
 
   async function handleSend() {
-    if (!newMessage.trim()) return
+    if (!newMessage.trim() || !chat) return
     setSending(true)
     setError(null)
 
     try {
-      let chatId = chat?.id
-
-      if (!chatId) {
-        const res = await fetch(`${import.meta.env.VITE_BACKEND_BASE_URL}/api/organization-chats`, {
-          method: 'POST',
-          headers: { Authorization: `Bearer ${accessToken}` },
-        })
-        if (!res.ok) {
-          setError('Failed to start conversation.')
-          return
-        }
-        const newChat: Chat = await res.json()
-        setChat(newChat)
-        chatId = newChat.id
-      }
-
-      const res = await fetch(`${import.meta.env.VITE_BACKEND_BASE_URL}/api/organization-chats/${chatId}/messages`, {
+      const res = await fetch(`${import.meta.env.VITE_BACKEND_BASE_URL}/api/organization-chats/${chat.id}/messages`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -102,7 +92,6 @@ function Messaging({ accessToken }: Props) {
       const sentMessage: Message = await res.json()
       setMessages((prev) => [...prev, sentMessage])
       setNewMessage('')
-      setComposing(false)
     } catch {
       setError('Failed to send message.')
     } finally {
@@ -114,8 +103,6 @@ function Messaging({ accessToken }: Props) {
     return <p className="p-6 text-neutral-600">Loading messages...</p>
   }
 
-  const showComposer = composing || messages.length > 0
-
   return (
     <div className="p-6">
       <h1 className="text-2xl font-bold text-neutral-900">Messages</h1>
@@ -123,25 +110,19 @@ function Messaging({ accessToken }: Props) {
 
       <div className="mt-6 max-w-2xl rounded-2xl border border-neutral-200 bg-white">
         <div className="max-h-[50vh] space-y-3 overflow-y-auto p-4">
-          {messages.length === 0 && (
-            <p className="text-sm text-neutral-500">No messages yet.</p>
-          )}
+          {messages.length === 0 && <p className="text-sm text-neutral-500">No messages yet — say hello below.</p>}
           {messages.map((m) => (
             <div key={m.id} className="rounded-lg bg-neutral-100 p-3 text-sm text-neutral-800">
-              {m.content}
+              {m.sender_name && (
+                <p className="mb-1 text-xs font-medium text-neutral-500">{m.sender_name}</p>
+              )}
+              {m.is_deleted ? <span className="italic text-neutral-400">Message deleted</span> : m.content}
             </div>
           ))}
         </div>
 
         <div className="border-t border-neutral-200 p-4">
-          {!showComposer ? (
-            <button
-              onClick={() => setComposing(true)}
-              className="rounded-lg bg-neutral-900 px-4 py-2 text-sm font-medium text-white hover:bg-neutral-800"
-            >
-              New message
-            </button>
-          ) : (
+          {chat ? (
             <div className="flex gap-2">
               <input
                 type="text"
@@ -161,6 +142,11 @@ function Messaging({ accessToken }: Props) {
                 {sending ? 'Sending...' : 'Send'}
               </button>
             </div>
+          ) : (
+            <p className="text-sm text-neutral-500">
+              No conversation found for your organization yet — this shouldn't normally happen, contact support if it
+              persists.
+            </p>
           )}
         </div>
       </div>
