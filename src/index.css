@@ -73,6 +73,22 @@ All colors MUST be HSL.
     @apply bg-background text-foreground font-sans;
     font-family: 'Inter', system-ui, -apple-system, sans-serif;
   } */
+
+  @property --tw-font-weight {
+    syntax: "*";
+    inherits: false;
+  }
+
+  @property --tw-tracking {
+    syntax: "*";
+    inherits: false;
+  }
+
+  @property --tw-border-style {
+    syntax: "*";
+    inherits: false;
+    initial-value: solid;
+  }
   
   h1, h2, h3, h4, h5, h6 {
     font-family: "Inter", sans-serif;
@@ -89,6 +105,40 @@ All colors MUST be HSL.
 
   .main-content {
     background-color: hsl(35 37% 95%);
+  }
+
+  .page-container {
+    min-height: calc(100vh - 3.25rem /* 52px */);
+  }
+
+  .content-container {
+    width: calc(3 / 4 * 100%) /* 75% */;
+    margin-inline: auto;
+    margin-block: calc(var(--spacing) * 8) /* 2rem = 32px */;
+  }
+
+  @media (width >= 64rem /* 1024px */) {
+    .content-container {
+        width: calc(3 / 4 * 100%) /* 75% */;
+    }
+  }
+
+  .content-header {
+    font-size: var(--text-5xl) /* 3rem = 48px */;
+    line-height: var(--tw-leading, var(--text-5xl--line-height) /* 1 */);
+    --tw-font-weight: var(--font-weight-bold) /* 700 */;
+    font-weight: var(--font-weight-bold) /* 700 */;
+    margin-top: calc(var(--spacing) * 4) /* 1rem = 16px */;
+  }
+
+  .content-subheader {
+    color: hsl(40 60% 57%);
+    text-transform: uppercase;
+    font-size: 10px;
+    --tw-font-weight: var(--font-weight-semibold) /* 600 */;
+    font-weight: var(--font-weight-semibold) /* 600 */;
+    --tw-tracking: var(--tracking-widest) /* 0.1em */;
+    letter-spacing: var(--tracking-widest) /* 0.1em */;
   }
 
   .sidebar-link {
@@ -136,14 +186,19 @@ All colors MUST be HSL.
     line-height: var(--tw-leading, var(--text-base--line-height) /* calc(1.5 / 1) ≈ 1.5 */);
   }
 
-  .submit-btn {
+  .btn {
     background-color: hsl(30 30% 25%) !important;
     color: white;
     border: 1px solid black !important;
-    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1)
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    width: max-content;
+    padding: 6px 16px;
+    border-style: var(--tw-border-style);
+    border-width: 1px;
+    border-radius: var(--radius-xl) /* 1rem = 16px */;
   }
 
-  .submit-btn:hover {
+  .btn:hover {
     cursor: pointer;
     background-color: hsl(30 30% 35%) !important;
   }

@@ -5,20 +5,20 @@ const api = axios.create({
     baseURL: import.meta.env.VITE_BACKEND_BASE_URL,
     headers: {
         "Content-Type": "application/json"
-    }
+    },
 });
 
-api.interceptors.request.use(async (config) => {
-    const {
-        data: {session},
-    } = await supabase.auth.getSession();
+// api.interceptors.request.use(async (config) => {
+//     const {
+//         data: {session},
+//     } = await supabase.auth.getSession();
 
-    if (session?.access_token) {
-        config.headers.Authorization = `Bearer ${session.access_token}`;
-    }
+//     if (session?.access_token) {
+//         config.headers.Authorization = `Bearer ${session.access_token}`;
+//     }
 
-    return config;
-})
+//     return config;
+// })
 
 export interface EventCreateRequest {
     name: string;
@@ -39,7 +39,8 @@ export interface EventCreateResponse {
 }
 
 export const createEvent = async (endpoint:string, event: EventCreateRequest): Promise<EventCreateResponse> => {
-    const response = await api.post(endpoint, event);
+    const response = await api.post(
+        endpoint, event);
 
     return response.data;
 }

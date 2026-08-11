@@ -1,7 +1,7 @@
 import { useForm, Controller, type SubmitHandler } from "react-hook-form";
 import PhoneInput, {isPossiblePhoneNumber} from "react-phone-number-input/input";
 import { useState } from "react";
-import {createEvent} from "../api/axios";
+import {createEvent} from "../../api/axios";
 
 type EventForm = {
     name: string;
@@ -17,7 +17,7 @@ type EventForm = {
     price_cad: number;
 }
 
-function Events() {
+function EventApplication() {
     const [response, setResponse] = useState<string | null>(null);
 
     const endpoint = '/api/events/event-application';
@@ -72,9 +72,9 @@ function Events() {
 
 
     return (
-        <div className="min-h-[calc(100vh-3.25rem)]">
-            <div className="w-3/4 mx-auto my-8 lg:w-3/4">
-                <h2 className="page-header-gold text-[10px] font-semibold tracking-widest">EVENT APPLICATION</h2>
+        <div className="page-container">
+            <div className="content-container">
+                <h2 className="page-header-gold text-[10px] font-semibold tracking-widest">Event</h2>
                 <h1 className="text-5xl font-bold mt-4">New Event</h1>
 
                 <form onSubmit={handleSubmit(onSubmit)} className="event-form flex flex-col my-10 px-3 py-4 lg:px-6 lg:py-8">
@@ -252,7 +252,7 @@ function Events() {
 
                     <input 
                         type="submit" 
-                        className="submit-btn border w-max mt-9 px-4 py-1.5 self-center-safe lg:self-auto"
+                        className="btn mt-9 self-center-safe lg:self-auto"
                     />
                 </form>
             </div>
@@ -261,4 +261,4 @@ function Events() {
 
 }
 
-export default Events
+export default EventApplication;

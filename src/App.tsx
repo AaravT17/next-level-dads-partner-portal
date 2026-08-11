@@ -1,44 +1,10 @@
 import { useState } from 'react'
 import AuthScreen from './AuthScreen'
 import ApplicationForm from './ApplicationForm'
-import Toolbar from './components/Toolbar'
-import Sidebar from './components/Sidebar'
-import Overview from './pages/Overview'
-import Communities from './pages/Communities'
-import Events from './pages/Events'
-import Messaging from './pages/Messaging'
+import Dashboard from './pages/Dashboard'
 
 type Application = {
   status: 'pending' | 'approved' | 'rejected'
-}
-
-function Dashboard({ restricted = false }: { restricted?: boolean }) {
-  const [showSidebar, setShowSidebar] = useState<boolean>(false)
-
-  return (
-    <BrowserRouter>
-      <div className="flex">
-        <Sidebar showSidebar={showSidebar} setShowSidebar={setShowSidebar} restricted={restricted} />
-
-        <div className="main-content flex-1">
-          <Toolbar showSidebar={showSidebar} setShowSidebar={setShowSidebar} />
-
-          <Routes>
-            {restricted ? (
-              <Route index element={<Messaging />} />
-            ) : (
-              <>
-                <Route index element={<Overview />} />
-                <Route path="communities" element={<Communities />} />
-                <Route path="events" element={<Events />} />
-                <Route path="messaging" element={<Messaging />} />
-              </>
-            )}
-          </Routes>
-        </div>
-      </div>
-    </BrowserRouter>
-  )
 }
 
 function App() {
