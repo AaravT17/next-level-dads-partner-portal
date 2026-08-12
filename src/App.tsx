@@ -1,25 +1,41 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import AuthScreen from './AuthScreen'
 import ApplicationForm from './ApplicationForm'
 import Dashboard from './pages/Dashboard'
+import { useAuth } from './auth/AuthContext'
+import api from './api/axios'
 
 type Application = {
   status: 'pending' | 'approved' | 'rejected'
 }
 
 function App() {
-  const [accessToken, setAccessToken] = useState<string | null>(null)
+  const { accessToken, isAuthenticated } = useAuth();
+
   const [application, setApplication] = useState<Application | null>(null)
   const [checkingApplication, setCheckingApplication] = useState(false)
 
-  async function handleAuthenticated(token: string) {
-    setAccessToken(token)
+  useEffect(() => {
+    if (!isAuthenticated) return;
+
+    handleAuthenticated();
+  }, [accessToken])
+
+
+  async function handleAuthenticated() {
     setCheckingApplication(true)
     try {
-      const res = await fetch(`${import.meta.env.VITE_BACKEND_BASE_URL}/api/organizations/applications/me`, {
-        headers: { Authorization: `Bearer ${token}` },
-      })
-      setApplication(res.ok ? await res.json() : null)
+      const res = await api.get(
+        "/organizations/applications/me", 
+        {
+          headers: {
+            'Authorization': `Bearer ${accessToken}`,
+          },
+        }
+    );
+
+      setApplication(res.status === 200 ? res.data : null);
+      // console.log(res.data);
     } finally {
       setCheckingApplication(false)
     }
@@ -60,7 +76,6 @@ function App() {
 
   return (
     <ApplicationForm
-      accessToken={accessToken}
       onSubmitted={() => setApplication({ status: 'pending' })}
     />
   )

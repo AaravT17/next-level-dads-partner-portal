@@ -1,6 +1,22 @@
+import { useEffect } from "react";
 import { Link } from "react-router"
+import { useLocation } from "react-router"
+import { ToastContainer, toast } from "react-toastify";
+import "react-toastify/ReactToastify.css";
 
 function Events() {
+    const location = useLocation();
+    const { eventId } = location.state || {};
+
+    useEffect(() => {
+        if(eventId) {
+            toast.success(`Event Application Submitted! Event ID: ${eventId}`, 
+                {
+                    position: 'top-right'
+                }
+            )
+        }
+    }, [eventId]);
     
     return (
         <div className="page-container">
@@ -20,6 +36,7 @@ function Events() {
                 </div>
 
             </div>
+            <ToastContainer />
         </div>
     )
 }

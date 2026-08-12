@@ -1,4 +1,5 @@
 import { NavLink } from "react-router"
+import { useAuth } from "../auth/AuthContext";
 
 interface StatusProp {
     showSidebar: boolean;
@@ -7,6 +8,8 @@ interface StatusProp {
 }
 
 function Sidebar({showSidebar, setShowSidebar, restricted}: StatusProp) {
+    const { isAuthenticated, logout } = useAuth();
+
     return (
         <>
             <div 
@@ -25,7 +28,7 @@ function Sidebar({showSidebar, setShowSidebar, restricted}: StatusProp) {
                     </div>
                 </div>
                 <p className="px-4 pt-4 text-xs tracking-wide text-black/45">Workspace</p>
-                <div className="flex flex-col mt-2 mx-2 gap-1 text-[15px]">
+                <div className="flex flex-col my-2 mx-2 gap-1 text-[15px] border-b border-b-black/15">
 
                     {!restricted && (
                         <>
@@ -50,8 +53,11 @@ function Sidebar({showSidebar, setShowSidebar, restricted}: StatusProp) {
                         <svg xmlns="http://www.w3.org/2000/svg" height="20px" viewBox="0 -960 960 960" width="20px" fill="#5f5d57"><path d="M240-400h480v-80H240v80Zm0-120h480v-80H240v80Zm0-120h480v-80H240v80ZM80-80v-720q0-33 23.5-56.5T160-880h640q33 0 56.5 23.5T880-800v480q0 33-23.5 56.5T800-240H240L80-80Z"/></svg>
                         Messaging
                     </NavLink>
-
                 </div>
+                <div className="px-4">
+                    { isAuthenticated && <button className="logout-btn" onClick={logout}>Sign out</button>} 
+                </div>
+ 
             </aside>
         </>
     )

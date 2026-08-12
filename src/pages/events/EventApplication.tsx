@@ -1,7 +1,11 @@
 import { useForm, Controller, type SubmitHandler } from "react-hook-form";
+import { useNavigate } from "react-router";
 import PhoneInput, {isPossiblePhoneNumber} from "react-phone-number-input/input";
 import { useState } from "react";
 import {createEvent} from "../../api/axios";
+import { useAuth } from "../../auth/AuthContext";
+import { ToastContainer, toast } from "react-toastify";
+import "react-toastify/ReactToastify.css";
 
 type EventForm = {
     name: string;
@@ -18,9 +22,10 @@ type EventForm = {
 }
 
 function EventApplication() {
-    const [response, setResponse] = useState<string | null>(null);
-
-    const endpoint = '/api/events/event-application';
+    const [response, setResponse] = useState<string | undefined>(undefined);
+    const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
+    const { accessToken } = useAuth();
+    const navigate = useNavigate();
 
     const {
         register,
@@ -44,6 +49,7 @@ function EventApplication() {
     })
 
     const onSubmit: SubmitHandler<EventForm> = async (data: EventForm) => {
+        setIsSubmitting(true);
         const payload = {
             name: data.name.trim(),
             description: data.description?.trim() || null,
@@ -61,12 +67,23 @@ function EventApplication() {
         console.log(payload);
 
         try {
-            const result = await createEvent(endpoint, payload);
+            const result = await createEvent(payload, accessToken);
 
-            console.log('Created event: ', result.id)
+            setResponse(result?.id);
+            setIsSubmitting(false);
+            
+            if (result) {
+                navigate('/events',
+                    {
+                        state: {eventId: result?.id}
+                    }
+                );
+            };
         }
         catch (err) {
-            console.error('Error submitting form data:', err);
+            toast.error("Error submitting application, please try again.", {
+                position: 'top-right'
+            });
         }
     }
 
@@ -74,8 +91,8 @@ function EventApplication() {
     return (
         <div className="page-container">
             <div className="content-container">
-                <h2 className="page-header-gold text-[10px] font-semibold tracking-widest">Event</h2>
-                <h1 className="text-5xl font-bold mt-4">New Event</h1>
+                <h2 className="content-subheader">Event Application</h2>
+                <h1 className="content-header">New Event</h1>
 
                 <form onSubmit={handleSubmit(onSubmit)} className="event-form flex flex-col my-10 px-3 py-4 lg:px-6 lg:py-8">
 
@@ -250,12 +267,16 @@ function EventApplication() {
                     </label>
                     {errors?.price_cad && <span className="error-msg">{errors?.price_cad.message}</span>}
 
-                    <input 
-                        type="submit" 
-                        className="btn mt-9 self-center-safe lg:self-auto"
-                    />
+                    <button
+                        type="submit"
+                        disabled={isSubmitting}
+                        className={`btn mt-9 self-center-safe lg:self-auto`}
+                    >
+                        {isSubmitting ? "Submitting..." : "Submit"}
+                    </button>
                 </form>
             </div>
+            <ToastContainer />
         </div>
     )
 

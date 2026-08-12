@@ -107,10 +107,12 @@ All colors MUST be HSL.
     background-color: hsl(35 37% 95%);
   }
 
+  /* Main container for page layout (forces content to take up 100vh) */
   .page-container {
     min-height: calc(100vh - 3.25rem /* 52px */);
   }
 
+  /* Main content container with appropriate padding and resize */
   .content-container {
     width: calc(3 / 4 * 100%) /* 75% */;
     margin-inline: auto;
@@ -123,6 +125,7 @@ All colors MUST be HSL.
     }
   }
 
+  /* For bold black header at the top of each page */
   .content-header {
     font-size: var(--text-5xl) /* 3rem = 48px */;
     line-height: var(--tw-leading, var(--text-5xl--line-height) /* 1 */);
@@ -131,6 +134,7 @@ All colors MUST be HSL.
     margin-top: calc(var(--spacing) * 4) /* 1rem = 16px */;
   }
 
+  /* For small gold subheader at the top of each page */
   .content-subheader {
     color: hsl(40 60% 57%);
     text-transform: uppercase;
@@ -186,6 +190,7 @@ All colors MUST be HSL.
     line-height: var(--tw-leading, var(--text-base--line-height) /* calc(1.5 / 1) ≈ 1.5 */);
   }
 
+  /* For all buttons used throughout the design */
   .btn {
     background-color: hsl(30 30% 25%) !important;
     color: white;
@@ -203,6 +208,10 @@ All colors MUST be HSL.
     background-color: hsl(30 30% 35%) !important;
   }
 
+  .btn.disabled {
+    background-color: hsl(30 30% 10%) !important;
+  }
+
   .error-msg {
     color:hsl( 0 65% 55%);
   }
@@ -215,8 +224,13 @@ All colors MUST be HSL.
     content: "*";
   }
 
-  .page-header-gold {
-    color: hsl(40 60% 57%);
+  .logout-btn {
+    color: color-mix(in oklab, var(--color-black) /* #000 = #000000 */ 60%, transparent);
+  }
+
+  .logout-btn:hover {
+    color: black;
+    cursor: pointer;
   }
 
 }

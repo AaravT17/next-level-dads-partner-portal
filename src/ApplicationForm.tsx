@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react'
+import { useAuth } from './auth/AuthContext'
 
 const inputClass =
   'mt-1 w-full rounded-lg border border-neutral-300 px-3 py-2 text-neutral-900 focus:border-[#c9932e] focus:outline-none focus:ring-1 focus:ring-[#c9932e]'
@@ -39,11 +40,11 @@ const initialFormData: FormData = {
 }
 
 type Props = {
-  accessToken: string
   onSubmitted: () => void
 }
 
-function ApplicationForm({ accessToken, onSubmitted }: Props) {
+function ApplicationForm({ onSubmitted }: Props) {
+  const { accessToken, logout } = useAuth();
   const [formData, setFormData] = useState<FormData>(initialFormData)
   const [error, setError] = useState<string | null>(null)
   const [submitted, setSubmitted] = useState(false)

@@ -26,7 +26,6 @@ function Toolbar({showSidebar, setShowSidebar}: StatusProp) {
                 <div
                 style={{width: '32px', height: '32px', backgroundColor: 'hsl(30 30% 25%)', borderRadius: '50%'}}
                 >
-
                 </div>
             </div>
         </div>

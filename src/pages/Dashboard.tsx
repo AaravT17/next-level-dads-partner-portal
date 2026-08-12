@@ -8,6 +8,7 @@ import Communities from "./Communities"
 import Events from "./events/Events"
 import EventApplication from "./events/EventApplication"
 
+
 function Dashboard({ restricted = false }: { restricted?: boolean }) {
   const [showSidebar, setShowSidebar] = useState<boolean>(false)
 

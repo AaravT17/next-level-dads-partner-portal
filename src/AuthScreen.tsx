@@ -1,14 +1,17 @@
 import { useState } from 'react'
+import { useAuth } from './auth/AuthContext'
 
 const inputClass =
   'mt-1 w-full rounded-lg border border-neutral-300 px-3 py-2 text-neutral-900 focus:border-[#c9932e] focus:outline-none focus:ring-1 focus:ring-[#c9932e]'
 const labelClass = 'block text-sm font-medium text-neutral-700'
 
 type Props = {
-  onAuthenticated: (accessToken: string) => void
+  onAuthenticated: () => void
 }
 
 function AuthScreen({ onAuthenticated }: Props) {
+  const { login } = useAuth();
+
   const [mode, setMode] = useState<'login' | 'signup'>('login')
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
@@ -43,7 +46,8 @@ function AuthScreen({ onAuthenticated }: Props) {
         return
       }
 
-      onAuthenticated(data.access_token)
+      // Set access token in AuthContext
+      login(data.access_token);
     } catch {
       setError('Something went wrong. Please try again later.')
     } finally {

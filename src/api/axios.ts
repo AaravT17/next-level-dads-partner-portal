@@ -1,24 +1,12 @@
 import axios from "axios";
-import { supabase } from "../lib/supabase";
 
 const api = axios.create({
-    baseURL: import.meta.env.VITE_BACKEND_BASE_URL,
+    baseURL: `${import.meta.env.VITE_BACKEND_BASE_URL}/api`,
     headers: {
         "Content-Type": "application/json"
     },
+    withCredentials: true,
 });
-
-// api.interceptors.request.use(async (config) => {
-//     const {
-//         data: {session},
-//     } = await supabase.auth.getSession();
-
-//     if (session?.access_token) {
-//         config.headers.Authorization = `Bearer ${session.access_token}`;
-//     }
-
-//     return config;
-// })
 
 export interface EventCreateRequest {
     name: string;
@@ -38,10 +26,21 @@ export interface EventCreateResponse {
     id: string;
 }
 
-export const createEvent = async (endpoint:string, event: EventCreateRequest): Promise<EventCreateResponse> => {
-    const response = await api.post(
-        endpoint, event);
+export const createEvent = async (event: EventCreateRequest, accessToken: string | null): Promise<EventCreateResponse | null> => {
+    if (!accessToken) {
+        console.log("Cannot create event, access token required.")
+        return null;
+    }
 
+    const response = await api.post(
+        '/events/event-application', 
+        event,
+        {
+            headers: {
+                'Authorization': `Bearer ${accessToken}`
+            }
+        }
+    );
     return response.data;
 }
 
