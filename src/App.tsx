@@ -14,7 +14,7 @@ type Application = {
   status: 'pending' | 'approved' | 'rejected'
 }
 
-function Dashboard({ restricted = false }: { restricted?: boolean }) {
+function Dashboard({ restricted = false, accessToken }: { restricted?: boolean; accessToken: string }) {
   const [showSidebar, setShowSidebar] = useState<boolean>(false)
 
   return (
@@ -34,7 +34,7 @@ function Dashboard({ restricted = false }: { restricted?: boolean }) {
                 <Route path="communities" element={<Communities />} />
                 <Route path="events" element={<Events />} />
                 <Route path="messaging" element={<Messaging />} />
-                <Route path="submissions" element={<Submissions />} />
+                <Route path="submissions" element={<Submissions accessToken={accessToken} />} />
             </>
             )}
           </Routes>
@@ -76,11 +76,11 @@ function App() {
 
   if (application) {
     if (application.status === 'approved') {
-      return <Dashboard />
+      return <Dashboard accessToken={accessToken} />
     }
 
     if (application.status === 'pending') {
-      return <Dashboard restricted />
+      return <Dashboard restricted accessToken={accessToken} />
     }
 
     return (

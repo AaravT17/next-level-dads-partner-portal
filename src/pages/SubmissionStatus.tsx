@@ -23,7 +23,7 @@ type Submission = {
     openMessage?: boolean;
 };
 
-export default function SubmissionStatus() {
+export default function SubmissionStatus({ accessToken }: { accessToken: string }) {
     const [submissions, setSubmissions] = useState<Submission[]>([]);
         
     const [isLoading, setIsLoading] = useState(true);
@@ -33,7 +33,11 @@ export default function SubmissionStatus() {
         setIsLoading(true);
         setHasError(false); 
         try {
-            const response = await fetch("/api/organizations-events/me");
+            const response = await fetch("http://localhost:8000/api/organizations-events/me", {
+                headers: {
+                    Authorization: `Bearer ${accessToken}`,
+                }
+            });
             if (!response.ok) {
                 throw new Error("Failed to fetch");
             }
@@ -51,7 +55,7 @@ export default function SubmissionStatus() {
     }, []);
 
     const approvedCount = submissions.filter((item) => item.app_status === "approved").length;
-    const pendingCount = submissions.filter((item) => item.app_status === "pending" && item.openMessage === false).length;
+    const pendingCount = submissions.filter((item) => item.app_status === "pending" && item.openMessage !== true).length;
     const needsInfoCount = submissions.filter((item) => item.app_status === "pending" && item.openMessage === true).length;
     const rejectedCount = submissions.filter((item) => item.app_status === "rejected").length;
     const allCount = approvedCount + pendingCount + needsInfoCount + rejectedCount;
@@ -72,7 +76,7 @@ export default function SubmissionStatus() {
     filteredSubmissions = submissions;
     } else if (activeFilter === "pending") {
     filteredSubmissions = submissions.filter(
-        (item) => item.app_status === "pending" && item.openMessage === false
+        (item) => item.app_status === "pending" && item.openMessage !== true
     );
     } else if (activeFilter === "needs_info") {
     filteredSubmissions = submissions.filter(
