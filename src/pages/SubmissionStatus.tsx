@@ -137,7 +137,12 @@ export default function SubmissionStatus({ accessToken }: { accessToken: string 
                                     </div>
                                 </div>
                                 <div className="flex flex-col items-end gap-1">
-                                    <span className="text-sm text-muted-foreground">{label ? label.title : "status not found"}</span>
+                                    <div className="flex items-center gap-1.5">
+                                        {label && (
+                                            <span className={`inline-block w-2 h-2 rounded-full ${label.dotColor}`}></span>
+                                        )}
+                                        <span className="text-sm text-muted-foreground">{label ? label.title : "status not found"}</span>
+                                    </div>
                                     {item.app_status === "pending" && item.openMessage === true && (
                                         <button onClick={() => console.log("TODO: open messaging thread for submission", item.id)} className="text-xs border rounded-full px-3 py-1">Open and Respond</button>
                                     )}
