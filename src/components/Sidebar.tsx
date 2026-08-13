@@ -53,6 +53,13 @@ function Sidebar({showSidebar, setShowSidebar, restricted}: StatusProp) {
                         <svg xmlns="http://www.w3.org/2000/svg" height="20px" viewBox="0 -960 960 960" width="20px" fill="#5f5d57"><path d="M240-400h480v-80H240v80Zm0-120h480v-80H240v80Zm0-120h480v-80H240v80ZM80-80v-720q0-33 23.5-56.5T160-880h640q33 0 56.5 23.5T880-800v480q0 33-23.5 56.5T800-240H240L80-80Z"/></svg>
                         Messaging
                     </NavLink>
+
+                    {!restricted && (
+                        <NavLink to={"submissions"} className="sidebar-link">
+                            <svg xmlns="http://www.w3.org/2000/svg" height="20px" viewBox="0 -960 960 960" width="20px" fill="#5f5d57"><path d="M216-96q-29.7 0-50.85-21.5Q144-139 144-168v-528q0-29 21.15-50.5T216-768h72v-96h72v96h240v-96h72v96h72q29.7 0 50.85 21.5Q816-725 816-696v528q0 29-21.15 50.5T744-96H216Zm0-72h528v-360H216v360Zm0-432h528v-96H216v96Zm0 0v-96 96Z"/></svg>
+                            Submission Status
+                        </NavLink>
+                    )}
                 </div>
                 <div className="px-4">
                     { isAuthenticated && <button className="logout-btn" onClick={logout}>Sign out</button>}

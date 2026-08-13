@@ -7,6 +7,7 @@ import Overview from "./Overview"
 import Communities from "./Communities"
 import Events from "./events/Events"
 import EventApplication from "./events/EventApplication"
+import SubmissionStatus from "./SubmissionStatus"
 
 
 function Dashboard({ restricted = false }: { restricted?: boolean }) {
@@ -38,6 +39,9 @@ function Dashboard({ restricted = false }: { restricted?: boolean }) {
 
                 {/* Messaging Routes */}
                 <Route path="messaging" element={<Messaging />} />
+
+                {/* Submission Status Routes */}
+                <Route path="submissions" element={<SubmissionStatus />} />
 
               </>
             )}
