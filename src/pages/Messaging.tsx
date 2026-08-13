@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react'
+import { useAuth } from '../auth/AuthContext'
 
 type Message = {
   id: string
@@ -16,11 +17,8 @@ type Chat = {
   organization_name: string
 }
 
-type Props = {
-  accessToken: string
-}
-
-function Messaging({ accessToken }: Props) {
+function Messaging() {
+  const { accessToken } = useAuth()
   const [chat, setChat] = useState<Chat | null>(null)
   const [messages, setMessages] = useState<Message[]>([])
   const [loading, setLoading] = useState(true)
@@ -30,6 +28,7 @@ function Messaging({ accessToken }: Props) {
 
   useEffect(() => {
     loadChat()
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
   async function loadChat() {
