@@ -191,7 +191,8 @@ function EventApplication() {
                     <div className="flex flex-col mt-6 gap-6 lg:flex-row lg:w-3/4">
                         <label className="flex-1">Latitude:
                             <input 
-                                type="number" 
+                                type="number"
+                                step="any"
                                 className="mt-1 w-full md:ml-4 md:w-2/3 md:mt-0"
                                 placeholder="" 
                                 {...register("latitude")} 
@@ -201,6 +202,7 @@ function EventApplication() {
                         <label className="flex-1">Longitude:
                             <input 
                                 type="number" 
+                                step="any"
                                 className="mt-1 w-full md:ml-4 md:w-2/3 md:mt-0"
                                 placeholder="" 
                                 {...register("longitude")} 
@@ -259,7 +261,8 @@ function EventApplication() {
 
                     <label className="mt-6 required-label">Price (CAD): $
                         <input 
-                            type="number" 
+                            type="number"
+                            step="any"
                             className="mt-1 w-full md:ml-4 md:w-1/4 md:mt-0"
                             placeholder="0" 
                             {...register("price_cad", {required: "Event price is required"})} 

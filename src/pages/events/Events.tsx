@@ -24,17 +24,13 @@ function Events() {
                 <h2 className="content-subheader">Your events</h2>
                 <div className="flex justify-between items-end">
                     <h1 className="content-header">My Events</h1>   
-
-                    <div className="flex">
-                        <Link to="/event-application">
-                            <button className="btn text-sm flex gap-2">
-                                <span>+</span>
-                                <span>Submit event</span>
-                            </button>
-                        </Link>
-                    </div>
+                    <Link to="/event-application">
+                        <button className="btn text-sm flex gap-2">
+                            <span>+</span>
+                            <span>Submit event</span>
+                        </button>
+                    </Link>
                 </div>
-
             </div>
             <ToastContainer />
         </div>
