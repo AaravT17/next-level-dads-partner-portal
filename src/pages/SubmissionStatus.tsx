@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { useAuth } from "../auth/AuthContext";
+import { useNavigate } from "react-router";
 
 const STATUS_LABELS = [
     {key: "approved", title: "Approved", dotColor: "bg-green-500"},
@@ -18,22 +19,29 @@ const EMPTY_MESSAGES = {
 type Submission = {
     id: string;
     name: string;
+    description: string | null;
     type: string;
     app_status: string;
     created_at: string;
+    location: string | null;
     openMessage?: boolean;
 };
 
 export default function SubmissionStatus() {
     const { accessToken } = useAuth();
+    const navigate = useNavigate();
     const [submissions, setSubmissions] = useState<Submission[]>([]);
-
+    const [selectedSubmission, setSelectedSubmission] = useState<Submission | null>(null);
+        
     const [isLoading, setIsLoading] = useState(true);
     const [hasError, setHasError] = useState(false);
+    const [isEditing, setIsEditing] = useState(false);
+    const [editForm, setEditForm] = useState({ name: "", description: "", location: "" });
+    const [isSaving, setIsSaving] = useState(false);
 
     async function loadSubmissions() {
         setIsLoading(true);
-        setHasError(false);
+        setHasError(false); 
         try {
             const response = await fetch(`${import.meta.env.VITE_BACKEND_BASE_URL}/api/organizations-events/me`, {
                 headers: {
@@ -51,6 +59,31 @@ export default function SubmissionStatus() {
             setIsLoading(false);
         }
     }
+
+    async function saveEdit() {
+        if (!selectedSubmission) return;
+        setIsSaving(true);
+        try {
+            const response = await fetch(`${import.meta.env.VITE_BACKEND_BASE_URL}/api/events/${selectedSubmission.id}`, {
+                method: "PATCH",
+                headers: {
+                    "Content-Type": "application/json",
+                    Authorization: `Bearer ${accessToken}`,
+                },
+                body: JSON.stringify(editForm),
+        });
+        if (!response.ok) {
+            throw new Error("Failed to save");
+        }
+        setIsEditing(false);
+        setSelectedSubmission(null);
+        loadSubmissions();
+    } catch (err) {
+        alert("Failed to save changes. Please try again.");
+    } finally {
+        setIsSaving(false);
+    }
+}
 
     useEffect(() => {
         loadSubmissions();
@@ -130,7 +163,16 @@ export default function SubmissionStatus() {
                         });
 
                         return (
-                            <div key={item.id} className="flex justify-between items-center px-4 py-3">
+                            <div key={item.id} onClick={() => {
+                                setSelectedSubmission(item);
+                                setEditForm({
+                                    name: item.name,
+                                    description: item.description || "",
+                                    location: item.location || "",
+                                });
+                                setIsEditing(false);
+                            }}
+                            className="flex justify-between items-center px-4 py-3">
                                 <div>
                                     <span className="text-sm">{item.name}</span>
                                     <div className="flex items-center gap-2 mt-1">
@@ -138,22 +180,107 @@ export default function SubmissionStatus() {
                                         <span className="text-xs text-muted-foreground">submitted {formattedDate}</span>
                                     </div>
                                 </div>
-                                <div className="flex flex-col items-end gap-1">
-                                    <div className="flex items-center gap-1.5">
-                                        {label && (
-                                            <span className={`inline-block w-2 h-2 rounded-full ${label.dotColor}`}></span>
+                                <div className="flex items-center gap-3">
+                                    <div className="flex flex-col items-end gap-1">
+                                        <div className="flex items-center gap-1.5">
+                                            {label && (
+                                                <span className={`inline-block w-2 h-2 rounded-full ${label.dotColor}`}></span>
+                                            )}
+                                            <span className="text-sm text-muted-foreground">{label ? label.title : "status not found"}</span>
+                                        </div>
+                                        {item.app_status === "pending" && item.openMessage === true && (
+                                            <button onClick={(e) => {
+                                                e.stopPropagation();
+                                                navigate("/messaging");
+                                            }}
+                                            className="text-xs border rounded-full px-3 py-1">Open and Respond</button>
                                         )}
-                                        <span className="text-sm text-muted-foreground">{label ? label.title : "status not found"}</span>
                                     </div>
-                                    {item.app_status === "pending" && item.openMessage === true && (
-                                        <button onClick={() => console.log("TODO: open messaging thread for submission", item.id)} className="text-xs border rounded-full px-3 py-1">Open and Respond</button>
-                                    )}
+                                    <span className="text-muted-foreground text-lg ml-2">&gt;</span>
                                 </div>
                             </div>
                         );
                     })
                 )}
-                </div>
             </div>
-        );
+            {selectedSubmission && (
+                <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50"
+                    onClick={() => setSelectedSubmission(null)}>
+                    <div className="bg-white rounded-xl p-6 max-w-md w-full mx-4"
+                        onClick={(e) => e.stopPropagation()}>
+
+                        {isEditing ? (
+                            <>
+                                <label className="text-xs text-muted-foreground">Name</label>
+                                <input
+                                    type="text"
+                                    value={editForm.name}
+                                    onChange={(e) => setEditForm({ ...editForm, name: e.target.value })}
+                                    className="w-full border rounded-lg px-3 py-2 mb-3 text-sm"
+                                />
+                                <label className="text-xs text-muted-foreground">Description</label>
+                                <textarea
+                                    value={editForm.description}
+                                    onChange={(e) => setEditForm({ ...editForm, description: e.target.value })}
+                                    className="w-full border rounded-lg px-3 py-2 mb-3 text-sm"
+                                    rows={3}
+                                />
+
+                                <label className="text-xs text-muted-foreground">Location</label>
+                                <input
+                                    type="text"
+                                    value={editForm.location}
+                                    onChange={(e) => setEditForm({ ...editForm, location: e.target.value })}
+                                    className="w-full border rounded-lg px-3 py-2 mb-4 text-sm"
+                                />
+
+                                <div className="flex gap-2">
+                                    <button
+                                        onClick={saveEdit}
+                                        disabled={isSaving}
+                                        className="text-sm bg-black text-white rounded-full px-4 py-2 hover:bg-gray-800 disabled:opacity-50"
+                                    >
+                                        {isSaving ? "Saving..." : "Save"}
+                                    </button>
+                                    <button
+                                        onClick={() => setIsEditing(false)}
+                                        className="text-sm border rounded-full px-4 py-2 hover:bg-gray-50"
+                                    >
+                                        Cancel
+                                    </button>
+                                </div>
+                            </>
+                        ) : (
+                            <>
+                                <h2 className="text-lg font-semibold mb-4">{selectedSubmission.name}</h2>
+                                          {selectedSubmission.description && (<p className="text-sm text-muted-foreground mb-2">{selectedSubmission.description}</p>
+                                )}
+                                <p className="text-sm text-muted-foreground mb-2">Type: {selectedSubmission.type}</p>
+                                <p className="text-sm text-muted-foreground mb-2">Location: {selectedSubmission.location || "Not provided"}</p>
+                                <p className="text-sm text-muted-foreground mb-2">Status: {selectedSubmission.app_status}</p>
+                                <p className="text-sm text-muted-foreground mb-4">Submitted: {new Date(selectedSubmission.created_at).toLocaleDateString("en-CA", {month: "short", day: "numeric"})}</p>
+
+                                <div className="flex gap-2">
+                                    {selectedSubmission.app_status !== "approved" && (
+                                        <button
+                                            onClick={() => setIsEditing(true)}
+                                            className="text-sm border rounded-full px-4 py-2 hover:bg-gray-50"
+                                        >
+                                            Edit
+                                        </button>
+                                    )}
+                                    <button
+                                        onClick={() => setSelectedSubmission(null)}
+                                        className="text-sm border rounded-full px-4 py-2 hover:bg-gray-50"
+                                    >
+                                        Close
+                                    </button>
+                                </div>
+                            </>
+                            )}
+                    </div>
+                </div>
+            )}
+        </div>
+    );
 }
